@@ -24,4 +24,4 @@ public class Bid {
 		return name + " " + bid;
 		//throw new UnsupportedOperationException();
 	}
-}
+} // hej
