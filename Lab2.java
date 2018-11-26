@@ -1,15 +1,32 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * A class that takes in a file of bids and creates a priority queue for sell
+ * and one for buy. Buys and sells and prints what it does.
+ * 
+ * Complexity: O(n)
+ * 
+ * @author Alexander Wölfinger
+ * @author Richard Martin
+ *
+ */
 public class Lab2 {
+
+	/**
+	 * Creates the two priority queues and makes sell and buy orders and creates a string with them
+	 * and the remaining orders that have not been executed.
+	 * 
+	 * Complexity: O(n)
+	 * 
+	 * @param commands the data it takes in, name, order type and bid value.
+	 * @return a string with the information of the orders.
+	 */
 	public static String pureMain(String[] commands) {
-		// TODO: declaration of two priority queues
 		Comparator<Bid> buyC = new BuyComparator();
 		Comparator<Bid> sellC = new SellComparator();
-
 		PriorityQueue<Bid> buy_pq = new PriorityQueue<Bid>(buyC);
 		PriorityQueue<Bid> sell_pq = new PriorityQueue<Bid>(sellC);
-
 		StringBuilder sb = new StringBuilder();
 
 		for (int line_no = 0; line_no < commands.length; line_no++) {
@@ -32,24 +49,19 @@ public class Lab2 {
 			}
 
 			if (action.equals("K")) {
-				// TODO: add new buy bid
 				Bid currentBid = new Bid(name, price);
 				buy_pq.add(currentBid);
 			} else if (action.equals("S")) {
-				// TODO: add new sell bid
 				Bid currentBid = new Bid(name, price);
 				sell_pq.add(currentBid);
 			} else if (action.equals("NK")) {
-				// TODO: update existing buy bid. use parts[3].
 				Bid oldBid = new Bid(name, price);
 				Bid newBid = new Bid(name, Integer.parseInt(parts[3]));
-				buy_pq.find(oldBid, newBid);
-
+				buy_pq.update(oldBid, newBid);
 			} else if (action.equals("NS")) {
-				// TODO: update existing sell bid. use parts[3].
 				Bid oldBid = new Bid(name, price);
 				Bid newBid = new Bid(name, Integer.parseInt(parts[3]));
-				sell_pq.find(oldBid, newBid);
+				sell_pq.update(oldBid, newBid);
 			} else {
 				throw new RuntimeException("line " + line_no + ": invalid action");
 			}
@@ -57,27 +69,16 @@ public class Lab2 {
 			if (sell_pq.size() == 0 || buy_pq.size() == 0)
 				continue;
 
-			// TODO:
-			// compare the bids of highest priority from each of
-			// each priority queues.
-			// if the lowest seller price is lower than or equal to
-			// the highest buyer price, then remove one bid from
-			// each priority queue and add a description of the
-			// transaction to the output.
 			if (buy_pq.minimum().bid >= sell_pq.minimum().bid) {
-				System.out.println(buy_pq.minimum().name + " buys a share from " + sell_pq.minimum().name + " for"
+				System.out.println(buy_pq.minimum().name + " buys a share from " + sell_pq.minimum().name + " for "
 						+ buy_pq.minimum().bid + "kr");
 				buy_pq.deleteMinimum();
 				sell_pq.deleteMinimum();
 			}
-
 		}
 
 		sb.append("Order book:\n");
-
 		sb.append("Sellers: ");
-		// TODO: print remaining sellers.
-		// can remove from priority queue until it is empty.
 		while (sell_pq.size() != 0) {
 			sb.append(sell_pq.minimum().toString());
 			if (sell_pq.size() != 1)
@@ -85,20 +86,25 @@ public class Lab2 {
 			sell_pq.deleteMinimum();
 		}
 		sb.append("\n");
-
 		sb.append("Buyers: ");
-		// TODO: print remaining buyers
-		// can remove from priority queue until it is empty.
+
 		while (buy_pq.size() != 0) {
 			sb.append(buy_pq.minimum().toString());
 			if (buy_pq.size() != 1)
 				sb.append(", ");
 			buy_pq.deleteMinimum();
 		}
-
 		return sb.toString();
 	}
 
+	/**
+	 * Reads in the file or arguments in terminal.
+	 * 
+	 * Complexity: O(n)
+	 * 
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		final BufferedReader actions;
 		if (args.length != 1) {
